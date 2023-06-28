@@ -6,31 +6,21 @@
 //
 
 import SwiftUI
+import Combine
 
 struct CharacterView: View {
     
+    // MARK: - Properties
     @ObservedObject var viewModel: CharacterViewViewModel
-    
     @State private var searchText = ""
-//    @State private var items = ["Apple", "Banana", "Orange", "Pear"]
-//
-//    var filteredItems: [String] {
-//        if searchText.isEmpty {
-//            return items
-//        } else {
-//            return items.filter { $0.localizedCaseInsensitiveContains(searchText) }
-//        }
-//    }
     
+    // MARK: - View
     var body: some View {
-        //        Text("Hello, World!")
         VStack {
             SearchBar(text: $searchText)
                 .onChange(of: searchText) { value in
-                    let searchText = value.replacing(" ", with: "")
-                    viewModel.fetchCharacters(with: searchText)
+                    viewModel.fetchCharacters(with: value.removedSpaces)
                 }
-                
             List(viewModel.characters, id: \.id) { viewModel in
                 Text(viewModel.name ?? "")
             }
@@ -42,6 +32,10 @@ struct CharacterView: View {
         .onAppear {
             viewModel.fetchCharacters(with: searchText)
         }
+        .alert(isPresented: $viewModel.showError) {
+            Alert(title: Text(viewModel.error))
+        }
+
     }
 }
 

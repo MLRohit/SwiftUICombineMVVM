@@ -10,13 +10,13 @@ import Combine
 
 protocol CharacterViewServiceType {
     
-    func fetchCharacter(with name: String) -> AnyPublisher<[Character], Error>
+    func fetchCharacter(with name: String) -> AnyPublisher<[Character], NetworkError>
     
 }
 
 class CharacterViewService: CharacterViewServiceType {
     
-    func fetchCharacter(with name: String) -> AnyPublisher<[Character], Error> {
+    func fetchCharacter(with name: String) -> AnyPublisher<[Character], NetworkError> {
         NetworkManager.shared.getData(endpoint: .character, name: name, type: [Character].self)
             .map({ $0.results ?? [] })
             .eraseToAnyPublisher()

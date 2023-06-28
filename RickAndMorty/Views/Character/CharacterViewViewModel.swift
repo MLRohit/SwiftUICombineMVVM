@@ -8,24 +8,32 @@
 import Foundation
 import Combine
 
-class CharacterViewViewModel: ObservableObject {
+class CharacterViewViewModel: BaseViewModel {
     
+    // MARK: - Properties
     let service: CharacterViewServiceType
-    private var cancellables = Set<AnyCancellable>()
 
     @Published var characters = [Character]()
+    @Published var showError = false
+    @Published var error = ""
     
+    // MARK: - Initializer
     init(service: CharacterViewService) {
         self.service = service
+        super.init()
     }
     
+    // MARK: - Other Functions
     func fetchCharacters(with name: String) {
         service.fetchCharacter(with: name)
-            .sink { completion in
+            .sink { [weak self] completion in
                 switch completion {
                 case .failure(let error):
-                    print("API Request error: \(error)")
+                    self?.error = error.errorDescription
+                    self?.showError = true
                 case .finished:
+                    self?.error = ""
+                    self?.showError = false
                     break
                 }
             } receiveValue: { [weak self] models in
